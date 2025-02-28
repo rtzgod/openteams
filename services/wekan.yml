@@ -3,16 +3,13 @@ networks:
     driver: bridge
 
 volumes:
-  mongodb_data:
   wekan_files:
 
 services:
   wekan:
     container_name: openteams-wekan
     image: ghcr.io/wekan/wekan:latest
-    restart: always
-    ports:
-      - 3001:8080
+    restart: ${RESTART_POLICY:-unless-stopped}
     environment:
       - MONGO_URL=mongodb://mongodb:27017/wekan?replicaSet=rs0
       - ROOT_URL=${WEKAN_ROOT_URL}
@@ -42,34 +39,11 @@ services:
       - LDAP_SYNC_USER_DATA=true
       - LDAP_SYNC_USER_DATA_FIELDMAP={"cn":"name", "mail":"email"}
     depends_on:
-      mongodb:
-        condition: service_healthy
+      - mongodb
+      - openldap
+      - npm
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - wekan_files:/data:rw
     networks:
       - openteams-network
-
-  mongodb:
-    container_name: openteams-mongodb
-    image: docker.io/bitnami/mongodb:6.0
-    restart: always
-    volumes:
-      - mongodb_data:/bitnami/mongodb
-    environment:
-      MONGODB_REPLICA_SET_MODE: "primary"
-      MONGODB_REPLICA_SET_NAME: "rs0"
-      MONGODB_PORT_NUMBER: "27017"
-      MONGODB_INITIAL_PRIMARY_HOST: "mongodb"
-      MONGODB_INITIAL_PRIMARY_PORT_NUMBER: "27017"
-      MONGODB_ADVERTISED_HOSTNAME: "mongodb"
-      MONGODB_ENABLE_JOURNAL: "true"
-      ALLOW_EMPTY_PASSWORD: "yes"
-    networks:
-      - openteams-network
-    healthcheck:
-      test: ["CMD", "true"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 30s

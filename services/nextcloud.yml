@@ -11,16 +11,14 @@ services:
   nextcloud_db:
     image: mariadb:10.6
     container_name: openteams-nextcloud-db
-    restart: always
-    ports:
-      - 3306:3306
+    restart: ${RESTART_POLICY:-unless-stopped}
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
-      - TZ=Asia/Almaty
+      - TZ=${TZ}
     volumes:
       - nextcloud_db_data:/var/lib/mysql
     networks:
@@ -29,11 +27,11 @@ services:
   nextcloud_redis:
     image: redis:6.2-alpine
     container_name: openteams-nextcloud-redis
-    restart: always
+    restart: ${RESTART_POLICY:-unless-stopped}
     command: redis-server --requirepass ${REDIS_PASSWORD}
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - TZ-Asia/Almaty
+      - TZ=${TZ}
     volumes:
       - nextcloud_redis_data:/data
     networks:
@@ -42,7 +40,7 @@ services:
   nextcloud:
     image: nextcloud:latest
     container_name: openteams-nextcloud
-    restart: always
+    restart: ${RESTART_POLICY:-unless-stopped}
     expose:
       - "80"
     environment:
@@ -52,7 +50,7 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - TZ=Asia/Almaty
+      - TZ=${TZ}
     volumes:
       - nextcloud_data:/var/www/html
     depends_on:

@@ -11,7 +11,7 @@ services:
   npm:
     container_name: openteams-npm
     image: jc21/nginx-proxy-manager:latest
-    restart: always
+    restart: ${RESTART_POLICY:-unless-stopped}
     ports:
       - "80:80"
       - "81:81"

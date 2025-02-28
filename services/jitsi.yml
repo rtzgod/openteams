@@ -4,13 +4,10 @@ networks:
 
 services:
     # Frontend
-    web:
+    jitsiweb:
         container_name: openteams-jitsi-web
         image: jitsi/web:${JITSI_IMAGE_VERSION:-unstable}
         restart: ${RESTART_POLICY:-unless-stopped}
-        ports:
-            - '${HTTP_PORT}:80'
-            - '${HTTPS_PORT}:443'
         volumes:
             - ${CONFIG}/web:/config:Z
             - ${CONFIG}/web/crontabs:/var/spool/cron/crontabs:Z
